@@ -3,3 +3,5 @@ pandas
 numpy 
 yfinance
 datetime
+gspread
+google-auth
