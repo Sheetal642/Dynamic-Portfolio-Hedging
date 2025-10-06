@@ -10,8 +10,10 @@ from google.oauth2.service_account import Credentials
 import time
 import re
 import os
+from dotenv import load_dotenv
 from openpyxl import Workbook
 from openpyxl.styles import Font
+load_dotenv()
 
 # Configuration
 END_DATE = datetime.now(timezone.utc).date()
@@ -21,6 +23,22 @@ YAHOO_INDEX_TICKER = "^NSEI"
 # Google Sheets Setup
 GOOGLE_SHEET_URL = "https://docs.google.com/spreadsheets/d/1tmlmkpvQK3X15VueaqrNX4xYSd5gudSzhYgJhfIf_QQ/edit?usp=sharing"
 SERVICE_ACCOUNT_FILE = "credentials.json"
+# Replace your credentials loading with this:
+def get_google_credentials():
+    credentials_dict = {
+        "type": os.getenv('TYPE'),
+        "project_id": os.getenv('project_id'),
+        "private_key_id": os.getenv('private_key_id'),
+        "private_key": os.getenv('private_key').replace('\\n', '\n'),
+        "client_email": os.getenv('client_email'),
+        "client_id": os.getenv('client_id'),
+        "auth_uri": os.getenv('auth_uri'),
+        "token_uri": os.getenv('token_uri'),
+        "auth_provider_x509_cert_url": os.getenv('auth_provider_x509_cert_url'),
+        "client_x509_cert_url": os.getenv('client_x509_cert_url'),
+        "universe_domain": os.getenv('universe_domain')
+    }
+    return credentials_dict
 
 def setup_google_sheets():
     """Connect to Google Sheets"""
@@ -28,7 +46,7 @@ def setup_google_sheets():
         scope = ['https://spreadsheets.google.com/feeds',
                 'https://www.googleapis.com/auth/drive']
         
-        creds = Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE, scopes=scope)
+        creds =  get_google_credentials()
         client = gspread.authorize(creds)
         return client
     except Exception as e:
@@ -592,3 +610,4 @@ if portfolio_data is not None:
             
             except Exception as e:
                 st.error(f"❌ Error in calculation: {str(e)}")
+
